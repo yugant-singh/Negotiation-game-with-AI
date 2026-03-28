@@ -1,0 +1,44 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #00d4ff;
+  --primary-dark: #0099bb;
+  --bg-dark: #0a0a0f;
+  --bg-card: #12121a;
+  --bg-card-hover: #1a1a25;
+  --text-primary: #ffffff;
+  --text-secondary: #8888aa;
+  --border: #2a2a3a;
+  --success: #00ff88;
+  --danger: #ff4444;
+  --warning: #ffaa00;
+
+  // Breakpoints
+  --mobile: 480px;
+  --tablet: 768px;
+  --desktop: 1024px;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: "Segoe UI", sans-serif;
+  min-height: 100vh;
+}
+
+// Responsive mixins
+@mixin mobile {
+  @media (max-width: 480px) { @content; }
+}
+
+@mixin tablet {
+  @media (max-width: 768px) { @content; }
+}
+
+@mixin desktop {
+  @media (min-width: 1024px) { @content; }
+}
