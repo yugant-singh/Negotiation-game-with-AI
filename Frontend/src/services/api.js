@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://negotiation-game-with-ai.onrender.com//api",
+  baseURL: "https://negotiation-game-with-ai.onrender.com/api",
 });
 
 // ─── Product APIs ───
