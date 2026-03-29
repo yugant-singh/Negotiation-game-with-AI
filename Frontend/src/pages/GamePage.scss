@@ -3,30 +3,32 @@
 .game {
   display: flex;
   height: 100vh;
-  gap: 0;
+  overflow: hidden;
 
   @include tablet {
     flex-direction: column;
     height: auto;
+    overflow: auto;
   }
 
   // ─── Left Panel ───
   &__panel {
-    width: 300px;
-    min-width: 300px;
+    width: 280px;
+    min-width: 280px;
     background: var(--bg-card);
     border-right: 1px solid var(--border);
-    padding: 30px 20px;
+    padding: 24px 20px;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 24px;
+    overflow-y: auto;
 
     @include tablet {
       width: 100%;
       min-width: unset;
       border-right: none;
       border-bottom: 1px solid var(--border);
-      padding: 20px 16px;
+      padding: 16px;
       gap: 16px;
     }
   }
@@ -38,7 +40,7 @@
   }
 
   &__product-image {
-    font-size: 3rem;
+    font-size: 2.8rem;
 
     @include tablet {
       font-size: 2rem;
@@ -46,16 +48,13 @@
   }
 
   &__product-name {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
+    font-weight: 700;
     color: var(--text-primary);
-
-    @include tablet {
-      font-size: 1.1rem;
-    }
   }
 
   &__product-desc {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     color: var(--text-secondary);
     line-height: 1.5;
 
@@ -64,13 +63,17 @@
     }
   }
 
+  &__product-price-row {
+    margin-top: 4px;
+  }
+
   &__product-price {
     font-size: 0.9rem;
     color: var(--text-secondary);
 
     span {
       color: var(--warning);
-      font-weight: 600;
+      font-weight: 700;
     }
   }
 
@@ -78,17 +81,11 @@
   &__rounds {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-
-    @include tablet {
-      flex-direction: row;
-      align-items: center;
-      gap: 16px;
-    }
+    gap: 8px;
   }
 
   &__rounds-label {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -100,8 +97,8 @@
   }
 
   &__round-circle {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     transition: all 0.3s;
 
@@ -112,6 +109,52 @@
 
     &.used {
       background: var(--border);
+    }
+  }
+
+  &__rounds-count {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  // ─── Tips ───
+  &__tips {
+    background: rgba(0, 212, 255, 0.05);
+    border: 1px solid rgba(0, 212, 255, 0.15);
+    border-radius: 12px;
+    padding: 14px;
+
+    @include tablet {
+      display: none;
+    }
+  }
+
+  &__tips-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 10px;
+  }
+
+  &__tips ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    li {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      padding-left: 12px;
+      position: relative;
+      line-height: 1.4;
+
+      &::before {
+        content: "→";
+        position: absolute;
+        left: 0;
+        color: var(--primary);
+      }
     }
   }
 
@@ -133,7 +176,6 @@
 
     @include tablet {
       margin-top: 0;
-      padding: 8px 14px;
     }
   }
 
@@ -148,6 +190,49 @@
     @include tablet {
       height: calc(100vh - 200px);
     }
+  }
+
+  // ─── Chat Header ───
+  &__chat-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    @include mobile {
+      padding: 12px 16px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+  }
+
+  &__chat-header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__chat-avatar {
+    font-size: 1.8rem;
+  }
+
+  &__chat-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  &__chat-status {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  &__chat-product {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
   }
 
   // ─── Messages ───
@@ -173,11 +258,22 @@
     }
   }
 
-  &__empty {
+  // ─── Welcome Message ───
+  &__welcome {
+    background: rgba(0, 212, 255, 0.05);
+    border: 1px solid rgba(0, 212, 255, 0.15);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     color: var(--text-secondary);
-    text-align: center;
-    margin-top: 40px;
     font-size: 0.95rem;
+    line-height: 1.6;
+
+    strong {
+      color: var(--text-primary);
+    }
   }
 
   // ─── Message Bubbles ───
@@ -238,30 +334,47 @@
     padding: 0 4px;
   }
 
+  // ─── Typing Animation ───
+  &__typing {
+    span {
+      animation: typing 1.2s infinite;
+      font-size: 1.4rem;
+      line-height: 1;
+
+      &:nth-child(2) { animation-delay: 0.2s; }
+      &:nth-child(3) { animation-delay: 0.4s; }
+    }
+  }
+
+  @keyframes typing {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
+  }
+
   // ─── Game Result ───
   &__result {
     text-align: center;
-    padding: 20px;
+    padding: 28px 20px;
     border-radius: 16px;
-    font-size: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    align-items: center;
+    gap: 10px;
 
     button {
-      padding: 10px 24px;
+      margin-top: 8px;
+      padding: 12px 28px;
       border-radius: 10px;
       border: none;
-      font-size: 0.9rem;
-      font-weight: 600;
+      font-size: 0.95rem;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
     }
 
     &--success {
-      background: rgba(0, 255, 136, 0.1);
+      background: rgba(0, 255, 136, 0.08);
       border: 1px solid var(--success);
-      color: var(--success);
 
       button {
         background: var(--success);
@@ -270,9 +383,8 @@
     }
 
     &--fail {
-      background: rgba(255, 68, 68, 0.1);
+      background: rgba(255, 68, 68, 0.08);
       border: 1px solid var(--danger);
-      color: var(--danger);
 
       button {
         background: var(--danger);
@@ -281,7 +393,34 @@
     }
   }
 
-  // ─── Offer Input ───
+  &__result-emoji {
+    font-size: 2.5rem;
+  }
+
+  &__result-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  &__result-price {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--success);
+  }
+
+  &__result-savings {
+    font-size: 1rem;
+    color: var(--warning);
+    font-weight: 600;
+  }
+
+  &__result-sub {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  // ─── Input Area ───
   &__input-area {
     padding: 16px 20px;
     border-top: 1px solid var(--border);
@@ -327,7 +466,7 @@
     background: var(--primary);
     color: #000;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;

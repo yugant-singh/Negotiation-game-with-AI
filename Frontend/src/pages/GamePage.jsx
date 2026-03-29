@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useGame } from "../context/GameContext";
 import { submitOffer, saveToLeaderboard } from "../services/api";
+import toast from "react-hot-toast";
 import "./GamePage.scss";
 
 function GamePage() {
@@ -25,11 +26,11 @@ function GamePage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
+  const [localFinalPrice, setLocalFinalPrice] = useState(null);
 
-  // Naya message aaye toh scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, loading]);
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
@@ -37,10 +38,8 @@ function GamePage() {
     const playerMessage = input.trim();
     setInput("");
 
-    // Player ka message chat mein add karo
     addMessage("player", playerMessage);
 
-    // Chat history update karo
     const updatedHistory = [
       ...chatHistory,
       { role: "user", content: playerMessage },
@@ -54,12 +53,16 @@ function GamePage() {
         chatHistory,
       });
 
-      const { aiMessage, status, gameStatus: gs, finalPrice: fp, roundsLeft: rl } = res.data;
+      const {
+        aiMessage,
+        status,
+        gameStatus: gs,
+        finalPrice: fp,
+        roundsLeft: rl,
+      } = res.data;
 
-      // AI ka message chat mein add karo
       addMessage("ai", aiMessage);
 
-      // Chat history mein AI response bhi add karo
       setChatHistory([
         ...updatedHistory,
         { role: "assistant", content: aiMessage },
@@ -68,13 +71,35 @@ function GamePage() {
       setGameStatus(gs);
       setRoundsLeft(rl);
 
+      // Toast notifications
       if (gs === "deal_closed") {
+        setLocalFinalPrice(fp);
         setFinalPrice(fp);
         await saveToLeaderboard(sessionId);
+        toast.success(`🎉 Deal closed at ₹${fp?.toLocaleString()}!`);
+      } else if (status === "rejected") {
+        toast.error("❌ Offer rejected! Try a better price.");
+      } else if (status === "countered") {
+        toast(`💬 AI countered! Keep negotiating.`, {
+          icon: "🤝",
+        });
+      } else if (rl === 2) {
+        toast(`⚠️ Only 2 rounds left!`, {
+          icon: "⏰",
+          style: {
+            background: "#12121a",
+            color: "#ffaa00",
+            border: "1px solid #ffaa00",
+            borderRadius: "12px",
+          },
+        });
+      } else if (gs === "deal_failed") {
+        toast.error("😔 No deal made. Try again!");
       }
     } catch (err) {
       console.error("Message send failed:", err);
       addMessage("ai", "Something went wrong. Please try again.");
+      toast.error("Something went wrong!");
     } finally {
       setLoading(false);
     }
@@ -88,10 +113,12 @@ function GamePage() {
           <span className="game__product-image">{selectedProduct?.image}</span>
           <h2 className="game__product-name">{selectedProduct?.name}</h2>
           <p className="game__product-desc">{selectedProduct?.description}</p>
-          <p className="game__product-price">
-            Listed at{" "}
-            <span>₹{selectedProduct?.listedPrice.toLocaleString()}</span>
-          </p>
+          <div className="game__product-price-row">
+            <p className="game__product-price">
+              Listed at{" "}
+              <span>₹{selectedProduct?.listedPrice.toLocaleString()}</span>
+            </p>
+          </div>
         </div>
 
         {/* Round Tracker */}
@@ -107,6 +134,18 @@ function GamePage() {
               />
             ))}
           </div>
+          <p className="game__rounds-count">{roundsLeft} / 6 remaining</p>
+        </div>
+
+        {/* Tips */}
+        <div className="game__tips">
+          <p className="game__tips-title">💡 Tips</p>
+          <ul>
+            <li>Tell the seller you're a student</li>
+            <li>Give a logical reason for discount</li>
+            <li>Build rapport before offering</li>
+            <li>Don't lowball — be reasonable</li>
+          </ul>
         </div>
 
         <button
@@ -119,12 +158,38 @@ function GamePage() {
 
       {/* Chat Area */}
       <div className="game__chat">
+        {/* Chat Header */}
+        <div className="game__chat-header">
+          <div className="game__chat-header-info">
+            <span className="game__chat-avatar">🤖</span>
+            <div>
+              <p className="game__chat-name">AI Seller</p>
+              <p className="game__chat-status">
+                {gameStatus === "ongoing" ? "🟢 Online" : "🔴 Offline"}
+              </p>
+            </div>
+          </div>
+          <p className="game__chat-product">
+            Negotiating: {selectedProduct?.image} {selectedProduct?.name}
+          </p>
+        </div>
+
         {/* Messages */}
         <div className="game__messages">
           {messages.length === 0 && (
-            <p className="game__empty">
-              Start negotiating — make an offer or convince the seller! 💬
-            </p>
+            <div className="game__welcome">
+              <p>
+                👋 Hello <strong>{playerName}</strong>!
+              </p>
+              <p>
+                I'm selling <strong>{selectedProduct?.name}</strong> for{" "}
+                <strong>
+                  ₹{selectedProduct?.listedPrice.toLocaleString()}
+                </strong>
+                .
+              </p>
+              <p>Make me an offer or convince me to give you a discount! 😏</p>
+            </div>
           )}
 
           {messages.map((msg, i) => (
@@ -140,7 +205,7 @@ function GamePage() {
             </div>
           ))}
 
-          {/* Loading indicator */}
+          {/* Loading */}
           {loading && (
             <div className="game__message game__message--ai">
               <span className="game__message-sender">🤖 AI Seller</span>
@@ -152,18 +217,36 @@ function GamePage() {
             </div>
           )}
 
-          {/* Game Over */}
+          {/* Deal Closed */}
           {gameStatus === "deal_closed" && (
             <div className="game__result game__result--success">
-              🎉 Deal closed at ₹{finalPrice?.toLocaleString()}! Saved to leaderboard.
-              <button onClick={() => navigate("/")}>Play Again</button>
+              <p className="game__result-emoji">🎉</p>
+              <p className="game__result-title">Deal Closed!</p>
+              <p className="game__result-price">
+                ₹{(localFinalPrice || finalPrice)?.toLocaleString()}
+              </p>
+              <p className="game__result-savings">
+                You saved ₹
+                {(
+                  selectedProduct?.listedPrice -
+                  (localFinalPrice || finalPrice)
+                )?.toLocaleString()}
+                !
+              </p>
+              <p className="game__result-sub">Saved to leaderboard ✅</p>
+              <button onClick={() => navigate("/")}>Play Again 🚀</button>
             </div>
           )}
 
+          {/* Deal Failed */}
           {gameStatus === "deal_failed" && (
             <div className="game__result game__result--fail">
-              😔 No deal made. Better luck next time!
-              <button onClick={() => navigate("/")}>Try Again</button>
+              <p className="game__result-emoji">😔</p>
+              <p className="game__result-title">No Deal Made</p>
+              <p className="game__result-sub">
+                Better luck next time! Try a different strategy.
+              </p>
+              <button onClick={() => navigate("/")}>Try Again 🔄</button>
             </div>
           )}
 
@@ -175,7 +258,7 @@ function GamePage() {
           <div className="game__input-area">
             <input
               type="text"
-              placeholder="Type your offer or message... I’m a student—can you give it to me for ₹8000?')"
+              placeholder="Type your offer or message... (e.g. 'Main student hu, ₹8000 mein doge?')"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}

@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const leaderboardSchema = new mongoose.Schema(
   {
+    sessionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "GameSession",
+      unique: true, 
+    },
     playerName: {
       type: String,
       required: true,
@@ -24,7 +29,7 @@ const leaderboardSchema = new mongoose.Schema(
       required: true,
     },
     savings: {
-      type: Number, // listedPrice - finalPrice
+      type: Number,
       required: true,
     },
   },

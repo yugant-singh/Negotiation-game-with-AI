@@ -6,6 +6,15 @@ export const saveToLeaderboard = async (req, res) => {
   try {
     const { sessionId } = req.body;
 
+    // Pehle check karo — already saved hai kya
+    const existing = await Leaderboard.findOne({ sessionId });
+    if (existing) {
+      return res.status(200).json({
+        message: "Already saved",
+        entry: existing,
+      });
+    }
+
     const session = await GameSession.findById(sessionId).populate("product");
     if (!session) {
       return res.status(404).json({ message: "Session not found" });
@@ -18,6 +27,7 @@ export const saveToLeaderboard = async (req, res) => {
     const savings = session.product.listedPrice - session.finalPrice;
 
     const entry = await Leaderboard.create({
+      sessionId,
       playerName: session.playerName,
       product: session.product._id,
       finalPrice: session.finalPrice,
@@ -41,8 +51,8 @@ export const getLeaderboard = async (req, res) => {
   try {
     const entries = await Leaderboard.find()
       .populate("product", "name image")
-      .sort({ savings: -1 }) // Sabse zyada savings upar
-      .limit(10);             // Top 10
+      .sort({ savings: -1 })
+      .limit(10);
 
     res.json(entries);
   } catch (err) {
