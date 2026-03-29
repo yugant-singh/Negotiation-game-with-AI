@@ -175,7 +175,7 @@ function GamePage() {
           <div className="game__input-area">
             <input
               type="text"
-              placeholder="Type your offer or message... (e.g. 'Main student hu, ₹8000 mein doge?')"
+              placeholder="Type your offer or message... I’m a student—can you give it to me for ₹8000?')"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}

@@ -4,6 +4,15 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
+// k/K handle karo — 18k = 18000
+const normalizeOffer = (str) => {
+  str = str.replace(/,/g, "").replace(/₹/g, "").trim();
+  if (/^\d+(\.\d+)?k$/i.test(str)) {
+    return Math.round(parseFloat(str) * 1000);
+  }
+  return parseInt(str);
+};
+
 export const generateAIResponse = async (
   product,
   playerMessage,
@@ -32,28 +41,31 @@ Language Rules:
 - If buyer writes in Hinglish or Hindi → respond in Hinglish (mix of Hindi and English)
 - If buyer writes in English → respond in English
 - Keep tone casual and conversational — like a real person, not a robot
-- Hinglish example: "Yaar, itna kam toh possible nahi hai. Thoda aur lao na."
-- English example: "That's a bit too low for me. Can you do better?"
 
 Emotional Intelligence Rules:
 - If buyer says they are a student → show sympathy, give a small extra concession
 - If buyer says they are poor or struggling financially → be empathetic, slightly more flexible
-- If buyer gives strong logical reason (bulk buy, referral, loyal customer, item has defect) → consider it seriously and reflect it in counter offer
+- If buyer gives strong logical reason (bulk buy, referral, loyal customer, item has defect) → consider it seriously
 - If buyer builds rapport or is friendly → warm up, maybe small concession
-- If buyer flatters you genuinely → appreciate it but don't give big discounts just for flattery
-- If buyer is rude or aggressive → become more stubborn, don't budge easily
+- If buyer is rude or aggressive → become more stubborn
 - If buyer is funny or witty → enjoy the banter but stay firm on price
-- Remember context from chat history — if buyer already gave a good reason, acknowledge it
+- Remember context from chat history
 
 Negotiation Rules:
 - NEVER reveal minimumPrice or targetPrice to the buyer
-- If buyer offers below ₹${minimumPrice} → firmly reject, give no counter below minimum
-- If buyer offers at or above ₹${targetPrice} → accept happily
+- If buyer offers below ₹${minimumPrice} → firmly reject
+- If buyer offers at or above ₹${targetPrice} → accept the deal
 - If offer is between minimum and target → counter negotiate smartly
-- If rounds are low (${roundsLeft} left) → be slightly more flexible to close the deal
+- If rounds are low (${roundsLeft} left) → be slightly more flexible
 - Keep responses short — 2 to 3 sentences max
 - Always steer conversation toward making an offer if buyer is just chatting
-- Stay in character at all times`;
+- Stay in character at all times
+
+MOST IMPORTANT RULE:
+- When you decide to accept a deal at any price, you MUST end your message with the exact token: DEAL_ACCEPTED
+- Example: "Theek hai yaar, 41k mein de deta hoon. DEAL_ACCEPTED"
+- Example: "Alright, deal at ₹8000. DEAL_ACCEPTED"
+- Do NOT use DEAL_ACCEPTED unless you are truly accepting the final price`;
 
   const messages = [
     ...chatHistory,
@@ -65,7 +77,7 @@ Negotiation Rules:
 
   try {
     const response = await groq.chat.completions.create({
-     model: "llama-3.3-70b-versatile",
+      model: "llama-3.3-70b-versatile",
       messages: [
         { role: "system", content: systemPrompt },
         ...messages,
@@ -74,23 +86,42 @@ Negotiation Rules:
       temperature: 0.7,
     });
 
-    const aiMessage = response.choices[0].message.content;
+    const rawMessage = response.choices[0].message.content;
 
-    // Player ke message mein offer dhundho
-    const offerMatch = playerMessage.match(/₹?\d[\d,]*/g);
+    // DEAL_ACCEPTED token check karo
+    const aiAccepted = rawMessage.includes("DEAL_ACCEPTED");
+
+    // Token remove karo — player ko nahi dikhana
+    const aiMessage = rawMessage.replace("DEAL_ACCEPTED", "").trim();
+
+    // Player ke message mein offer dhundho — k/K bhi handle hoga
+    const offerMatch = playerMessage.match(/₹?\s?\d[\d,]*(\.\d+)?k?/gi);
     let extractedOffer = null;
 
     if (offerMatch) {
-      extractedOffer = parseInt(
-        offerMatch[offerMatch.length - 1].replace(/,/g, "")
-      );
+      extractedOffer = normalizeOffer(offerMatch[offerMatch.length - 1]);
+    }
+
+    // Agar offer nahi mila but AI ne accept kiya
+    // toh chatHistory se last offer dhundho
+    if (!extractedOffer && aiAccepted) {
+      for (let i = chatHistory.length - 1; i >= 0; i--) {
+        const match = chatHistory[i].content.match(/₹?\s?\d[\d,]*(\.\d+)?k?/gi);
+        if (match) {
+          extractedOffer = normalizeOffer(match[match.length - 1]);
+          break;
+        }
+      }
     }
 
     // Status decide karo
     let status = "talking";
     let finalPrice = null;
 
-    if (extractedOffer) {
+    if (aiAccepted && extractedOffer) {
+      status = "accepted";
+      finalPrice = extractedOffer;
+    } else if (extractedOffer) {
       if (extractedOffer < minimumPrice) {
         status = "rejected";
       } else if (extractedOffer >= targetPrice) {
@@ -101,7 +132,7 @@ Negotiation Rules:
       }
     }
 
-    if (roundsLeft <= 0) {
+    if (roundsLeft <= 0 && status !== "accepted") {
       status = "failed";
     }
 

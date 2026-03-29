@@ -7,14 +7,13 @@ import "./HomePage.scss";
 function HomePage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [selectedProduct, setSelectedProductLocal] = useState(null);
   const [name, setName] = useState("");
   const [starting, setStarting] = useState(false);
 
   const { setPlayerName, setSelectedProduct, setSessionId, resetGame } = useGame();
   const navigate = useNavigate();
 
-  // Page load hote hi sab reset karo
   useEffect(() => {
     resetGame();
   }, []);
@@ -34,17 +33,14 @@ function HomePage() {
   }, []);
 
   const handleStart = async () => {
-    if (!name.trim() || !selectedProductId) return;
-
+    if (!name.trim() || !selectedProduct) return;
     try {
       setStarting(true);
-      const res = await startGame(name, selectedProductId);
+      const res = await startGame(name, selectedProduct._id);
       const { sessionId, product } = res.data;
-
       setPlayerName(name);
       setSelectedProduct(product);
       setSessionId(sessionId);
-
       navigate(`/game/${sessionId}`);
     } catch (err) {
       console.error("Game start failed:", err);
@@ -55,75 +51,90 @@ function HomePage() {
 
   return (
     <div className="home">
-      {/* Header */}
-      <div className="home__header">
-        <h1 className="home__title">🤝 Negotiation Game</h1>
-        <p className="home__subtitle">
-          Outsmart the AI seller. Get the lowest price. Top the leaderboard.
-        </p>
-      </div>
 
-      {/* Player Name Input */}
-      <div className="home__name">
+      {/* Navbar */}
+      <nav className="home__navbar">
+        <div className="home__navbar-logo">🤝 Negotiation Game</div>
+        <button
+          className="home__navbar-btn"
+          onClick={() => navigate("/leaderboard")}
+        >
+          🏆 Leaderboard
+        </button>
+      </nav>
+
+      {/* Name Input */}
+      <div className="home__name-section">
         <input
           type="text"
-          placeholder="Enter your name..."
+          placeholder="Enter your name to begin..."
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="home__input"
         />
       </div>
 
-      {/* Products */}
-      <div className="home__section">
-        <h2 className="home__section-title">Choose a Product</h2>
+      {/* Products Section */}
+      <div className="home__products-section">
+        <h2 className="home__section-title">Choose a Product to Negotiate</h2>
+
         {loading ? (
           <p className="home__loading">Loading products...</p>
         ) : (
-          <div className="home__products">
+          <div className="home__products-scroll">
             {products.map((product) => (
               <div
                 key={product._id}
                 className={`home__product-card ${
-                  selectedProductId === product._id ? "selected" : ""
+                  selectedProduct?._id === product._id ? "selected" : ""
                 }`}
-                onClick={() => setSelectedProductId(product._id)}
+                onClick={() => setSelectedProductLocal(product)}
               >
                 <span className="home__product-image">{product.image}</span>
                 <h3 className="home__product-name">{product.name}</h3>
-                <p className="home__product-desc">{product.description}</p>
                 <p className="home__product-price">
-                  Listed at{" "}
-                  <span>₹{product.listedPrice.toLocaleString()}</span>
+                  ₹{product.listedPrice.toLocaleString()}
                 </p>
-                <p className="home__product-personality">
-                  Seller mood:{" "}
-                  <span className={`mood mood--${product.personality}`}>
-                    {product.personality}
-                  </span>
-                </p>
+                <span className={`home__mood home__mood--${product.personality}`}>
+                  {product.personality}
+                </span>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Start Button */}
-      <div className="home__action">
-        <button
-          className="home__btn"
-          onClick={handleStart}
-          disabled={!name.trim() || !selectedProductId || starting}
-        >
-          {starting ? "Starting..." : "Start Negotiation 🚀"}
-        </button>
-        <button
-          className="home__btn home__btn--secondary"
-          onClick={() => navigate("/leaderboard")}
-        >
-          View Leaderboard 🏆
-        </button>
+      {/* Bottom Bar */}
+      <div className={`home__bottom-bar ${selectedProduct ? "visible" : ""}`}>
+        {selectedProduct ? (
+          <>
+            <div className="home__bottom-info">
+              <span className="home__bottom-image">{selectedProduct.image}</span>
+              <div>
+                <p className="home__bottom-name">{selectedProduct.name}</p>
+                <p className="home__bottom-price">
+                  Listed at ₹{selectedProduct.listedPrice.toLocaleString()}
+                  <span className={`home__mood home__mood--${selectedProduct.personality}`}>
+                    {selectedProduct.personality}
+                  </span>
+                </p>
+              </div>
+            </div>
+            <button
+              className="home__start-btn"
+              onClick={handleStart}
+              disabled={!name.trim() || starting}
+            >
+              {starting ? "Starting..." : "Start Negotiation 🚀"}
+            </button>
+          </>
+        ) : (
+          <p className="home__bottom-hint">
+            👆 Select a product to start negotiating
+          </p>
+        )}
       </div>
+
     </div>
   );
 }

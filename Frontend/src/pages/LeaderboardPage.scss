@@ -1,0 +1,186 @@
+@use '../styles/global.scss' as *;
+
+.leaderboard {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+
+  @include tablet {
+    padding: 24px 16px;
+  }
+
+  // Header
+  &__header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  &__title {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 10px;
+
+    @include tablet {
+      font-size: 1.8rem;
+    }
+
+    @include mobile {
+      font-size: 1.5rem;
+    }
+  }
+
+  &__subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+
+    @include mobile {
+      font-size: 0.85rem;
+    }
+  }
+
+  &__loading,
+  &__empty {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 40px 0;
+    font-size: 1rem;
+  }
+
+  // Table Wrapper
+  &__table-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow-x: auto;
+    margin-bottom: 32px;
+
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+  }
+
+  // Table
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+
+    thead tr {
+      border-bottom: 1px solid var(--border);
+
+      th {
+        padding: 16px 20px;
+        text-align: left;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-secondary);
+        white-space: nowrap;
+
+        @include mobile {
+          padding: 12px 14px;
+        }
+      }
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background: var(--bg-card-hover);
+      }
+
+      // Top 3 rows
+      &.leaderboard__top {
+        background: rgba(0, 212, 255, 0.04);
+      }
+
+      td {
+        padding: 16px 20px;
+        font-size: 0.95rem;
+        white-space: nowrap;
+
+        @include mobile {
+          padding: 12px 14px;
+          font-size: 0.85rem;
+        }
+      }
+    }
+  }
+
+  // Columns
+  &__rank {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary);
+
+    @include mobile {
+      font-size: 1rem;
+    }
+  }
+
+  &__player {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  &__product {
+    color: var(--text-secondary);
+  }
+
+  &__listed {
+    color: var(--text-secondary);
+    text-decoration: line-through;
+  }
+
+  &__deal {
+    color: var(--warning);
+    font-weight: 600;
+  }
+
+  &__savings {
+    color: var(--success);
+    font-weight: 700;
+  }
+
+  &__rounds {
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  // Action
+  &__action {
+    display: flex;
+    justify-content: center;
+  }
+
+  &__btn {
+    padding: 14px 40px;
+    border-radius: 12px;
+    border: none;
+    background: var(--primary);
+    color: #000;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: var(--primary-dark);
+    }
+
+    @include mobile {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+}

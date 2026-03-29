@@ -1,8 +1,7 @@
- export const products = [
+export const products = [
   {
     name: "Vintage Camera",
-    description:
-      "A classic 1970s film camera in excellent condition. Rare find for collectors.",
+    description: "A classic 1970s film camera in excellent condition. Rare find for collectors.",
     image: "📷",
     listedPrice: 15000,
     minimumPrice: 8000,
@@ -11,8 +10,7 @@
   },
   {
     name: "Gaming Laptop",
-    description:
-      "High-performance gaming laptop, 1 year old. Minor scratches but fully functional.",
+    description: "High-performance gaming laptop, 1 year old. Minor scratches but fully functional.",
     image: "💻",
     listedPrice: 60000,
     minimumPrice: 40000,
@@ -21,8 +19,7 @@
   },
   {
     name: "Antique Watch",
-    description:
-      "Swiss-made pocket watch from the 1940s. Still keeps perfect time.",
+    description: "Swiss-made pocket watch from the 1940s. Still keeps perfect time.",
     image: "⌚",
     listedPrice: 25000,
     minimumPrice: 14000,
@@ -31,8 +28,7 @@
   },
   {
     name: "Acoustic Guitar",
-    description:
-      "Professional grade acoustic guitar. Needs to be sold urgently.",
+    description: "Professional grade acoustic guitar. Needs to be sold urgently.",
     image: "🎸",
     listedPrice: 18000,
     minimumPrice: 9000,
@@ -48,5 +44,94 @@
     targetPrice: 10000,
     personality: "friendly",
   },
+  {
+    name: "Drone Camera",
+    description: "4K drone with 30 min flight time. One minor scratch on body, works perfectly.",
+    image: "🚁",
+    listedPrice: 45000,
+    minimumPrice: 28000,
+    targetPrice: 38000,
+    personality: "friendly",
+  },
+  {
+    name: "Vintage Vinyl Record Player",
+    description: "1960s turntable in working condition. Audiophiles dream item.",
+    image: "🎵",
+    listedPrice: 20000,
+    minimumPrice: 11000,
+    targetPrice: 16000,
+    personality: "stubborn",
+  },
+  {
+    name: "Smart Watch",
+    description: "Latest model smartwatch, barely used. Selling due to upgrade.",
+    image: "⌚",
+    listedPrice: 22000,
+    minimumPrice: 13000,
+    targetPrice: 18000,
+    personality: "friendly",
+  },
+  {
+    name: "DSLR Camera",
+    description: "Professional DSLR with 2 lenses. Perfect for photography enthusiasts.",
+    image: "📸",
+    listedPrice: 55000,
+    minimumPrice: 35000,
+    targetPrice: 47000,
+    personality: "stubborn",
+  },
+  {
+    name: "Gaming Console",
+    description: "Latest gen gaming console with 2 controllers. Lightly used.",
+    image: "🎮",
+    listedPrice: 50000,
+    minimumPrice: 32000,
+    targetPrice: 43000,
+    personality: "friendly",
+  },
+  {
+    name: "Electric Scooter",
+    description: "Electric scooter with 40km range. Needs to sell before moving city.",
+    image: "🛵",
+    listedPrice: 35000,
+    minimumPrice: 20000,
+    targetPrice: 28000,
+    personality: "desperate",
+  },
+  {
+    name: "iPad Pro",
+    description: "iPad Pro 12.9 inch with Apple Pencil. Minor screen scratches.",
+    image: "📱",
+    listedPrice: 80000,
+    minimumPrice: 55000,
+    targetPrice: 70000,
+    personality: "stubborn",
+  },
+  {
+    name: "Bluetooth Speaker",
+    description: "Premium portable speaker. Waterproof, 20hr battery. Selling urgently.",
+    image: "🔊",
+    listedPrice: 8000,
+    minimumPrice: 4500,
+    targetPrice: 6500,
+    personality: "desperate",
+  },
+  {
+    name: "Mountain Bike",
+    description: "21 speed mountain bike, barely used. Perfect for trails and city rides.",
+    image: "🚵",
+    listedPrice: 25000,
+    minimumPrice: 15000,
+    targetPrice: 21000,
+    personality: "friendly",
+  },
+  {
+    name: "Telescope",
+    description: "Professional stargazing telescope. Comes with 3 eyepieces and tripod.",
+    image: "🔭",
+    listedPrice: 18000,
+    minimumPrice: 10000,
+    targetPrice: 14000,
+    personality: "stubborn",
+  },
 ];
-
