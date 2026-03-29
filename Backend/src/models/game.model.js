@@ -22,6 +22,11 @@ const gameSessionSchema = new mongoose.Schema(
       ref: "Product",
     },
     rounds: [roundSchema],
+    difficulty: {
+      type: String,
+      enum: ["easy", "medium", "hard"],
+      default: "medium",
+    },
     maxRounds: {
       type: Number,
       default: 6,
@@ -39,7 +44,4 @@ const gameSessionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-
-
-
-export default mongoose.model("GameSession", gameSessionSchema)
+export default mongoose.model("GameSession", gameSessionSchema);

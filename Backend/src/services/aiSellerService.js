@@ -18,10 +18,19 @@ export const generateAIResponse = async (
   playerMessage,
   chatHistory,
   roundNumber,
-  maxRounds
+  maxRounds,
+  flexibilityBonus = 0
 ) => {
   const { minimumPrice, targetPrice, listedPrice, personality } = product;
   const roundsLeft = maxRounds - roundNumber;
+
+  // Difficulty ka effect system prompt mein dikhao
+  const difficultyHint =
+    flexibilityBonus > 0
+      ? "You are in easy mode — be a bit more generous and flexible than usual."
+      : flexibilityBonus < 0
+      ? "You are in hard mode — be extra firm and stubborn. Make the buyer really work for every discount."
+      : "";
 
   const systemPrompt = `You are an AI seller in a negotiation game. You are selling "${product.name}".
 
@@ -35,6 +44,8 @@ Your personality is: ${personality}
 ${personality === "stubborn" ? "- You are very firm, rarely budge, make buyer work hard for every discount." : ""}
 ${personality === "friendly" ? "- You are warm and open to fair deals, willing to negotiate reasonably." : ""}
 ${personality === "desperate" ? "- You need to sell urgently, you are more flexible but try not to show it too much." : ""}
+
+${difficultyHint}
 
 Language Rules:
 - Detect the language of the buyer's message automatically
@@ -83,7 +94,7 @@ MOST IMPORTANT RULE:
         ...messages,
       ],
       max_tokens: 150,
-      temperature: 0.7,
+      temperature: flexibilityBonus > 0 ? 0.8 : flexibilityBonus < 0 ? 0.5 : 0.7,
     });
 
     const rawMessage = response.choices[0].message.content;
@@ -91,10 +102,10 @@ MOST IMPORTANT RULE:
     // DEAL_ACCEPTED token check karo
     const aiAccepted = rawMessage.includes("DEAL_ACCEPTED");
 
-    // Token remove karo — player ko nahi dikhana
+    // Token remove karo
     const aiMessage = rawMessage.replace("DEAL_ACCEPTED", "").trim();
 
-    // Player ke message mein offer dhundho — k/K bhi handle hoga
+    // Player ke message mein offer dhundho
     const offerMatch = playerMessage.match(/₹?\s?\d[\d,]*(\.\d+)?k?/gi);
     let extractedOffer = null;
 
@@ -103,7 +114,6 @@ MOST IMPORTANT RULE:
     }
 
     // Agar offer nahi mila but AI ne accept kiya
-    // toh chatHistory se last offer dhundho
     if (!extractedOffer && aiAccepted) {
       for (let i = chatHistory.length - 1; i >= 0; i--) {
         const match = chatHistory[i].content.match(/₹?\s?\d[\d,]*(\.\d+)?k?/gi);

@@ -10,6 +10,7 @@ function HomePage() {
   const [selectedProduct, setSelectedProductLocal] = useState(null);
   const [name, setName] = useState("");
   const [starting, setStarting] = useState(false);
+  const [difficulty, setDifficulty] = useState("medium");
 
   const { setPlayerName, setSelectedProduct, setSessionId, resetGame } = useGame();
   const navigate = useNavigate();
@@ -36,8 +37,8 @@ function HomePage() {
     if (!name.trim() || !selectedProduct) return;
     try {
       setStarting(true);
-      const res = await startGame(name, selectedProduct._id);
-      const { sessionId, product } = res.data;
+      const res = await startGame(name, selectedProduct._id, difficulty);
+      const { sessionId, product, maxRounds } = res.data;
       setPlayerName(name);
       setSelectedProduct(product);
       setSessionId(sessionId);
@@ -49,9 +50,29 @@ function HomePage() {
     }
   };
 
+  const difficultyConfig = {
+    easy: {
+      label: "Easy",
+      emoji: "😊",
+      desc: "8 rounds, AI is flexible",
+      color: "success",
+    },
+    medium: {
+      label: "Medium",
+      emoji: "😐",
+      desc: "6 rounds, balanced AI",
+      color: "warning",
+    },
+    hard: {
+      label: "Hard",
+      emoji: "😈",
+      desc: "4 rounds, AI is stubborn",
+      color: "danger",
+    },
+  };
+
   return (
     <div className="home">
-
       {/* Navbar */}
       <nav className="home__navbar">
         <div className="home__navbar-logo">🤝 Negotiation Game</div>
@@ -74,10 +95,29 @@ function HomePage() {
         />
       </div>
 
+      {/* Difficulty Selector */}
+      <div className="home__difficulty-section">
+        <h2 className="home__section-title">Choose Difficulty</h2>
+        <div className="home__difficulty-options">
+          {Object.entries(difficultyConfig).map(([key, val]) => (
+            <div
+              key={key}
+              className={`home__difficulty-card home__difficulty-card--${val.color} ${
+                difficulty === key ? "selected" : ""
+              }`}
+              onClick={() => setDifficulty(key)}
+            >
+              <span className="home__difficulty-emoji">{val.emoji}</span>
+              <p className="home__difficulty-label">{val.label}</p>
+              <p className="home__difficulty-desc">{val.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Products Section */}
       <div className="home__products-section">
         <h2 className="home__section-title">Choose a Product to Negotiate</h2>
-
         {loading ? (
           <p className="home__loading">Loading products...</p>
         ) : (
@@ -95,7 +135,9 @@ function HomePage() {
                 <p className="home__product-price">
                   ₹{product.listedPrice.toLocaleString()}
                 </p>
-                <span className={`home__mood home__mood--${product.personality}`}>
+                <span
+                  className={`home__mood home__mood--${product.personality}`}
+                >
                   {product.personality}
                 </span>
               </div>
@@ -114,19 +156,26 @@ function HomePage() {
                 <p className="home__bottom-name">{selectedProduct.name}</p>
                 <p className="home__bottom-price">
                   Listed at ₹{selectedProduct.listedPrice.toLocaleString()}
-                  <span className={`home__mood home__mood--${selectedProduct.personality}`}>
+                  <span
+                    className={`home__mood home__mood--${selectedProduct.personality}`}
+                  >
                     {selectedProduct.personality}
                   </span>
                 </p>
               </div>
             </div>
-            <button
-              className="home__start-btn"
-              onClick={handleStart}
-              disabled={!name.trim() || starting}
-            >
-              {starting ? "Starting..." : "Start Negotiation 🚀"}
-            </button>
+            <div className="home__bottom-right">
+              <span className={`home__bottom-difficulty home__bottom-difficulty--${difficultyConfig[difficulty].color}`}>
+                {difficultyConfig[difficulty].emoji} {difficultyConfig[difficulty].label}
+              </span>
+              <button
+                className="home__start-btn"
+                onClick={handleStart}
+                disabled={!name.trim() || starting}
+              >
+                {starting ? "Starting..." : "Start Negotiation 🚀"}
+              </button>
+            </div>
           </>
         ) : (
           <p className="home__bottom-hint">
@@ -134,7 +183,6 @@ function HomePage() {
           </p>
         )}
       </div>
-
     </div>
   );
 }

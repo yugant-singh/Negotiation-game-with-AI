@@ -2,6 +2,22 @@ import GameSession from "../models/game.model.js";
 import Product from "../models/product.model.js";
 import { generateAIResponse } from "../services/aiSellerService.js";
 
+// Difficulty ke hisaab se maxRounds aur flexibility
+const difficultyConfig = {
+  easy: {
+    maxRounds: 8,
+    flexibilityBonus: 0.15, // AI zyada flexible
+  },
+  medium: {
+    maxRounds: 6,
+    flexibilityBonus: 0,
+  },
+  hard: {
+    maxRounds: 4,
+    flexibilityBonus: -0.10, // AI kam flexible
+  },
+};
+
 // ─── All Products Fetch ───
 export const getAllProducts = async (req, res) => {
   try {
@@ -18,16 +34,21 @@ export const getAllProducts = async (req, res) => {
 // ─── Game Start ───
 export const startGame = async (req, res) => {
   try {
-    const { playerName, productId } = req.body;
+    const { playerName, productId, difficulty = "medium" } = req.body;
 
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
 
+    // Difficulty ke hisaab se maxRounds set karo
+    const { maxRounds } = difficultyConfig[difficulty];
+
     const session = await GameSession.create({
       playerName,
       product: productId,
+      difficulty,
+      maxRounds,
       rounds: [],
       status: "ongoing",
     });
@@ -35,6 +56,8 @@ export const startGame = async (req, res) => {
     res.status(201).json({
       message: "Game started",
       sessionId: session._id,
+      difficulty,
+      maxRounds,
       product: {
         _id: product._id,
         name: product.name,
@@ -42,14 +65,13 @@ export const startGame = async (req, res) => {
         image: product.image,
         listedPrice: product.listedPrice,
       },
-      maxRounds: session.maxRounds,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// ─── Submit Message (offer ya baat) ───
+// ─── Submit Message ───
 export const submitOffer = async (req, res) => {
   try {
     const { sessionId } = req.params;
@@ -73,16 +95,18 @@ export const submitOffer = async (req, res) => {
     const roundNumber = session.rounds.length + 1;
     const product = session.product;
 
-    // AI response generate karo
+    // Difficulty config pass karo AI ko
+    const { flexibilityBonus } = difficultyConfig[session.difficulty];
+
     const aiResult = await generateAIResponse(
       product,
       playerMessage,
       chatHistory,
       roundNumber,
-      session.maxRounds
+      session.maxRounds,
+      flexibilityBonus
     );
 
-    // Round save karo
     const round = {
       roundNumber,
       playerOffer: aiResult.extractedOffer,
@@ -93,7 +117,6 @@ export const submitOffer = async (req, res) => {
 
     session.rounds.push(round);
 
-    // Game status update karo
     if (aiResult.status === "accepted") {
       session.status = "deal_closed";
       session.finalPrice = aiResult.finalPrice;

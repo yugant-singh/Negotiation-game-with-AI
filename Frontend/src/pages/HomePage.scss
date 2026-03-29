@@ -4,7 +4,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-bottom: 100px; // Bottom bar ke liye space
+  padding-bottom: 100px;
 
   // ─── Navbar ───
   &__navbar {
@@ -81,25 +81,120 @@
     }
   }
 
-  // ─── Products Section ───
-  &__products-section {
-    padding: 16px 32px;
-    flex: 1;
-
-    @include mobile {
-      padding: 12px 16px;
-    }
-  }
-
+  // ─── Section Title ───
   &__section-title {
     font-size: 1rem;
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 
     @include mobile {
       font-size: 0.85rem;
+    }
+  }
+
+  // ─── Difficulty Section ───
+  &__difficulty-section {
+    padding: 8px 32px 24px;
+
+    @include mobile {
+      padding: 8px 16px 20px;
+    }
+  }
+
+  &__difficulty-options {
+    display: flex;
+    gap: 16px;
+
+    @include mobile {
+      gap: 10px;
+    }
+  }
+
+  &__difficulty-card {
+    flex: 1;
+    padding: 16px 12px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--bg-card);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+
+    &:hover {
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+    }
+
+    &.selected {
+      transform: translateY(-2px);
+    }
+
+    &--success {
+      &.selected {
+        border-color: var(--success);
+        box-shadow: 0 0 16px rgba(0, 255, 136, 0.15);
+      }
+      &:hover { border-color: var(--success); }
+    }
+
+    &--warning {
+      &.selected {
+        border-color: var(--warning);
+        box-shadow: 0 0 16px rgba(255, 170, 0, 0.15);
+      }
+      &:hover { border-color: var(--warning); }
+    }
+
+    &--danger {
+      &.selected {
+        border-color: var(--danger);
+        box-shadow: 0 0 16px rgba(255, 68, 68, 0.15);
+      }
+      &:hover { border-color: var(--danger); }
+    }
+  }
+
+  &__difficulty-emoji {
+    font-size: 1.8rem;
+
+    @include mobile {
+      font-size: 1.4rem;
+    }
+  }
+
+  &__difficulty-label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+
+    @include mobile {
+      font-size: 0.85rem;
+    }
+  }
+
+  &__difficulty-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+
+    @include mobile {
+      display: none;
+    }
+  }
+
+  // ─── Products Section ───
+  &__products-section {
+    padding: 0 32px 16px;
+    flex: 1;
+
+    @include mobile {
+      padding: 0 16px 16px;
     }
   }
 
@@ -109,15 +204,11 @@
     padding: 40px 0;
   }
 
-  // ─── Horizontal Scroll ───
+  // ─── Products Grid ───
   &__products-scroll {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 16px;
-
-    @include desktop {
-      grid-template-columns: repeat(5, 1fr);
-    }
 
     @include tablet {
       grid-template-columns: repeat(3, 1fr);
@@ -263,6 +354,39 @@
     gap: 10px;
   }
 
+  &__bottom-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    @include mobile {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+
+  &__bottom-difficulty {
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+
+    &--success {
+      color: var(--success);
+      background: rgba(0, 255, 136, 0.1);
+    }
+
+    &--warning {
+      color: var(--warning);
+      background: rgba(255, 170, 0, 0.1);
+    }
+
+    &--danger {
+      color: var(--danger);
+      background: rgba(255, 68, 68, 0.1);
+    }
+  }
+
   &__bottom-hint {
     color: var(--text-secondary);
     font-size: 0.95rem;
@@ -293,7 +417,7 @@
     }
 
     @include mobile {
-      width: 100%;
+      flex: 1;
       padding: 12px;
     }
   }
