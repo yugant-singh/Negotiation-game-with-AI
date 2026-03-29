@@ -5,9 +5,12 @@ import leaderboardRoutes from "./routes/leaderboard.routes.js";
 
 const app = express();
 
-app.use(cors());
 app.use(express.json());
-
+app.use(express.static("./public"))
+app.use(cors({
+    origin:"http://localhost:5173"
+    
+}))
 // Routes
 app.use("/api/game", gameRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
